@@ -47,6 +47,12 @@ Prepared for [*first lab*](https://cloud.comsys.kpi.ua/s/Fskj393sCcwx842?dir=und
 
 ## Pull Requests
 
-[Passed](https://github.com/future-stardust/ip-0x-lab-1-gapiyka/pull/3)
+[Passed]
 
-[Failed](https://github.com/future-stardust/ip-0x-lab-1-gapiyka/pull/2)
+![image](https://user-images.githubusercontent.com/50524296/210516068-c5ea88c8-c566-4a30-8c38-bb45519e6ca7.png)
+
+
+[Failed]
+
+![image](https://user-images.githubusercontent.com/50524296/210516168-531eda2f-44fc-4399-b1d1-fb5214cfe2b9.png)
+
