@@ -1,0 +1,67 @@
+using System;
+using System.Drawing;
+using Emgu.CV;
+using Emgu.CV.CvEnum;
+using Emgu.CV.Structure;
+
+namespace Lab1
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            string file = "..\\..\\..\\cat.jpg";
+            #region CROPPED
+            Point p = new Point(60, 10);
+            Size s = new Size(200, 400);
+            Rectangle rect = new Rectangle(p, s);
+            Image<Bgr, byte> imgCrop = new Image<Bgr, byte>(file);
+            imgCrop.ROI = rect;
+            #endregion
+            Mat mat = CvInvoke.Imread(file, ImreadModes.AnyColor);
+            Mat resized = new Mat();
+            Mat rotated = new Mat();
+            Mat map = new Mat();
+            Mat blurred = new Mat();
+            int h = 203;
+            float ratio = (float)mat.Width / mat.Height;
+            int w = (int)(h * ratio);
+            var size = new Size(w, h);
+            PointF center = new PointF(w / 2f, h / 2f);
+            CvInvoke.Resize(mat, resized, size);
+            CvInvoke.GetRotationMatrix2D(center, -45, 1, map);
+            CvInvoke.WarpAffine(resized, rotated, map, size);
+            #region Blurr
+            CvInvoke.GaussianBlur(resized, blurred, new Size(11, 11), 0);
+
+            Image<Bgr, byte> img = new Image<Bgr, byte>(resized.Width * 2, resized.Height);
+            img.ROI = new Rectangle(0, 0, resized.Width, resized.Height);
+            resized.CopyTo(img);
+            img.ROI = Rectangle.Empty;
+            img.ROI = new Rectangle(resized.Width, 0, resized.Width, resized.Height);
+            blurred.CopyTo(img);
+            img.ROI = Rectangle.Empty;
+            #endregion
+            #region Shapes / Text
+            CvInvoke.Rectangle(img, new Rectangle(40, 10, 100, 150), new MCvScalar(0, 0, 0));
+            CvInvoke.Line(img, new Point(resized.Width, 0),
+            new Point(resized.Width * 2, resized.Height),
+            new MCvScalar(20, 100, 20), 4);
+            CvInvoke.Line(img, new Point(resized.Width, resized.Height),
+            new Point(resized.Width * 2, 0),
+            new MCvScalar(20, 100, 20), 4);
+            CvInvoke.Polylines(img, new Point[]
+            { new Point(50, 8), new Point(70, 25), new Point(50, 40) },
+            true, new MCvScalar(200, 0, 0), 2);
+            CvInvoke.Circle(img, new Point(180
+            , 45), 30, new MCvScalar(0, 0, 200), 2);
+            CvInvoke.PutText(img, "BEST CATS!", new Point(300, 130),
+            FontFace.HersheyScriptComplex, 1, new MCvScalar(255, 255, 255), 2);
+            #endregion
+
+            CvInvoke.Imshow("My cat", img);
+            CvInvoke.WaitKey();
+            CvInvoke.DestroyAllWindows();
+        }
+    }
+}

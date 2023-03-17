@@ -1,0 +1,100 @@
+using Emgu.CV;
+using Emgu.CV.Structure;
+using Emgu.CV.Util;
+using Emgu.CV.Dnn;
+using System.IO;
+using System.Linq;
+using Emgu.CV.CvEnum;
+
+namespace Lab
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            string dir = "..\\..\\..\\src\\";
+            string models = dir + "models\\";
+            string names = models + "coco.names";
+            string cfg = models + "yolov3-tiny.cfg";
+            string weights = models + "yolov3-tiny.weights";
+            string file = "..\\..\\..\\test_im.jpg";
+            string video= "..\\..\\..\\video.mp4";
+            var classLabels = File.ReadAllLines(names);
+            //Mat frame = CvInvoke.Imread(file, ImreadModes.AnyColor);
+            var net = DnnInvoke.ReadNetFromDarknet(cfg, weights);
+            net.SetPreferableBackend(Emgu.CV.Dnn.Backend.OpenCV);
+            net.SetPreferableTarget(Target.Cpu);
+            VectorOfMat output = new();
+            VectorOfRect boxes;
+            VectorOfFloat scores;
+            VectorOfInt indices ;
+
+            var vc = new VideoCapture(video);
+            Mat frame = new();
+            while (true)
+            {
+                if (!vc.Read(frame)) break;
+
+                CvInvoke.Resize(frame, frame, new System.Drawing.Size(0, 0), 0.4, 0.4);
+                boxes = new();
+                indices = new();
+                scores = new();
+                var image = frame.ToImage<Bgr, byte>();
+                var input = DnnInvoke.BlobFromImage(image, 1 / 255.0, swapRB: true);
+                net.SetInput(input);
+                net.Forward(output, net.UnconnectedOutLayersNames);
+
+                //for (int i = 0; i < output.Size; i++)
+                {
+                    var mat = output[1];//output[i];
+                    var data = (float[,])mat.GetData();
+                
+                    for (int j = 0; j < data.GetLength(0); j++)
+                    {
+                        float[] row = Enumerable.Range(0, data.GetLength(1))
+                                      .Select(x => data[j, x])
+                                      .ToArray();
+                
+                        var rowScore = row.Skip(5).ToArray();
+                        var classId = rowScore.ToList().IndexOf(rowScore.Max());
+                        var confidence = rowScore[classId];
+                
+                        //if (confidence > 0.8f)
+                        {
+                            var centerX = (int)(row[0] * frame.Width);
+                            var centerY = (int)(row[1] * frame.Height);
+                            var boxWidth = (int)(row[2] * frame.Width);
+                            var boxHeight = (int)(row[3] * frame.Height);
+                
+                            var x = (int)(centerX - (boxWidth / 2));
+                            var y = (int)(centerY - (boxHeight / 2));
+                
+                            boxes.Push(new System.Drawing.Rectangle[] { new System.Drawing.Rectangle(x, y, boxWidth, boxHeight) });
+                            indices.Push(new int[] { classId });
+                            scores.Push(new float[] { confidence });
+                        }
+                    }
+                }
+                
+                var bestIndex = DnnInvoke.NMSBoxes(boxes.ToArray(), scores.ToArray(), 0.4f, 0.6f);
+                
+                for (int i = 0; i < bestIndex.Length; i++)
+                {
+                    int index = bestIndex[i];
+                    var box = boxes[index];
+                    string text = classLabels[indices[index]] + ", " + (int)(scores[index] * 100) + "%";
+                    CvInvoke.Rectangle(frame, box, new MCvScalar(0, 255, 0));
+                    CvInvoke.PutText(frame, text, new System.Drawing.Point(box.X, box.Y - 20),
+                    FontFace.HersheyPlain, 1.0, new MCvScalar(0, 0, 255));
+                }
+
+                CvInvoke.Imshow("Output", frame);
+
+            if (CvInvoke.WaitKey(1) == 1)
+            break;
+            }
+            CvInvoke.WaitKey();
+            CvInvoke.DestroyAllWindows();
+        }
+    }
+}

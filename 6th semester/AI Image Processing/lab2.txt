@@ -1,0 +1,101 @@
+using System;
+using System.Drawing;
+using Emgu.CV;
+using Emgu.CV.CvEnum;
+using Emgu.CV.Structure;
+
+namespace Lab1
+{
+    class Program
+    {
+        static MCvScalar green = new MCvScalar(0, 222, 0);
+        static MCvScalar red = new MCvScalar(0, 0, 222);
+        static MCvScalar yellow = new MCvScalar(0, 222, 222);
+        static string dirOut = "..\\..\\..\\";
+        static string file = dirOut + "friends-happy.jpg";
+        static string video = dirOut + "video-face.mp4";
+        static string haarFrontal = dirOut + "haarcascade_frontalface_default.xml";
+        static string haarEye = dirOut + "haarcascade_eye.xml";
+        static string haarSmile = dirOut + "haarcascade_smile.xml";
+        static double scalingFactor = 0.5;
+        static CascadeClassifier faceCascade = new CascadeClassifier(haarFrontal);
+        static CascadeClassifier eyeCascade = new CascadeClassifier(haarEye);
+        static CascadeClassifier smileCascade = new CascadeClassifier(haarSmile);
+
+        static Size GetNewSize(int height, int width)
+        {
+            int minH = 300;
+            int h = height > minH ? minH : height;
+            float ratio = (float)width / height;
+            int w = (int)(h * ratio);
+            return new Size(w, h);
+        }
+
+        static void FaceDetection(ref Mat pic)
+        {
+            Mat greyMat = new Mat();
+            CvInvoke.CvtColor(pic, greyMat, ColorConversion.Bgr2Gray);
+            Rectangle[] faceDetections = faceCascade.DetectMultiScale(greyMat, 1.3, 5);
+            
+            foreach (Rectangle face in faceDetections)
+            {
+                Rectangle[] eyeDetections = eyeCascade.DetectMultiScale(greyMat, 1.9, 1);
+                Rectangle[] smileDetections = smileCascade.DetectMultiScale(greyMat, 2.8, 3);
+            
+                CvInvoke.Rectangle(pic, face, green);
+                foreach (Rectangle eye in eyeDetections)
+                {
+                    CvInvoke.Rectangle(pic, eye, yellow);
+                }
+                foreach (Rectangle smile in smileDetections)
+                {
+                    CvInvoke.Rectangle(pic, smile, red);
+                }
+            }
+        }
+
+        static void HogFaceDetection(HOGDescriptor hog, ref Mat pic)
+        {
+            MCvObjectDetection[] peopleDetectionsByHog = hog.DetectMultiScale(pic);
+            foreach (var peopleRegion in peopleDetectionsByHog)
+            {
+                Rectangle person = peopleRegion.Rect;
+                CvInvoke.Rectangle(pic, person, green);
+            }
+        }
+        static void Main(string[] args)
+        {
+            #region Image
+            //Mat mat = CvInvoke.Imread(file, ImreadModes.Color);
+            //Mat resized = new Mat();
+            //var size = GetNewSize(mat.Height, mat.Width);
+            //CvInvoke.Resize(mat, resized, size, 0, 0, Inter.Area);
+            //resized = FaceDetection(ref resized);
+            #endregion
+
+            #region Video
+            VideoCapture cap = new VideoCapture(video);
+            Mat frame = new Mat();
+            Mat resized = new Mat();
+            HOGDescriptor hog = new HOGDescriptor();
+            hog.SetSVMDetector(HOGDescriptor.GetDefaultPeopleDetector());
+
+            while (true)
+            {
+                if (!cap.Read(frame)) break;
+                Size size = GetNewSize(frame.Height, frame.Width);
+                CvInvoke.Resize(frame, resized, size);
+
+                //HogFaceDetection(hog, ref resized);
+                FaceDetection(ref resized);
+
+                CvInvoke.Imshow("Detection", resized);
+                if (CvInvoke.WaitKey(1) == 1)
+                    break;
+            }
+            #endregion
+            
+            CvInvoke.DestroyAllWindows();
+        }
+    }
+}

@@ -1,0 +1,121 @@
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using Emgu.CV;
+using Emgu.CV.CvEnum;
+using Emgu.CV.Structure;
+using Emgu.CV.Util;
+
+namespace Lab1
+{
+    class Program
+    {
+        static MCvScalar white = new MCvScalar(255, 255, 255);
+        static MCvScalar red = new MCvScalar(0, 0, 222);
+        static string dirOut = "..\\..\\..\\";
+        static string file = dirOut + "road2.jpg";
+        static string video = dirOut + "road.mp4";
+
+        static double Mean(List<double> arr)
+        {
+            return Queryable.Average(arr.AsQueryable());
+        }
+
+        static void DrawLines(ref Image<Bgr, byte> img, LineSegment2D[] lines)
+        {
+
+            List<double> XBottomPos = new List<double>();
+            List<double> XUpperPos = new List<double>();
+            List<double> XBottomNeg = new List<double>();
+            List<double> XUpperNeg = new List<double>();
+
+            int yBottom = 540;
+            int yUpper = 315;
+            double slope;
+            double b;
+            double yB;
+            double yU;
+            foreach (var line in lines)
+            {
+                slope = (double)(line.P2.Y - line.P1.Y) / (line.P2.X - line.P1.X);
+                b = line.P1.Y - slope * line.P1.X;
+                yB = (yBottom - b) / slope;
+                yU = (yUpper - b) / slope;
+                if (slope > 0.5 && slope < 0.8) {
+
+                    XBottomPos.Add(yB);
+                    XUpperPos.Add(yU);
+                } else if (slope < -0.5 && slope > -0.8) {
+                    XBottomNeg.Add(yB);
+                    XUpperNeg.Add(yU);
+                }
+
+            }
+            if (XBottomPos.Count == 0 || XBottomNeg.Count == 0 ||
+                XUpperPos.Count == 0 || XUpperNeg.Count == 0) return;
+
+            int[][] linesMean = new int[][] {
+            new int[] { (int)(Mean(XBottomPos)), yBottom, (int)(Mean(XUpperPos)), yUpper },
+            new int[] { (int)(Mean(XBottomNeg)), yBottom, (int)(Mean(XUpperNeg)), yUpper } };
+
+            for(int i = 0; i< linesMean.Length; i++)
+            {
+                CvInvoke.Line(img, new Point(linesMean[i][0], linesMean[i][1]), new Point(linesMean[i][2], linesMean[i][3]), red, 5);
+            }
+        }
+
+        static void Main(string[] args)
+        {
+            //Image<Bgr, byte> img = new Image<Bgr, byte>(file);
+
+            #region Video
+            VideoCapture cap = new VideoCapture(video);
+            Image<Bgr, byte> img;
+            Mat frame = new Mat();
+            
+            while (true)
+            {
+                if (!cap.Read(frame)) break;
+                img = frame.ToImage<Bgr, byte>();
+                Image<Gray, byte> gray = new Image<Gray, byte>(img.Size);
+                Image<Gray, byte> blurred = new Image<Gray, byte>(img.Size);
+                Image<Gray, byte> edges = new Image<Gray, byte>(img.Size);
+                Image<Gray, byte> mask = new Image<Gray, byte>(img.Size);
+                Image<Gray, byte> maskEdges = new Image<Gray, byte>(img.Size);
+
+                CvInvoke.CvtColor(img, gray, ColorConversion.Bgr2Gray);
+                int blur = 5;
+                CvInvoke.GaussianBlur(gray, blurred, new Size(blur, blur), 0);
+
+                int lowT = 50;
+                int highT = 150;
+                edges = blurred.Canny(lowT, highT);
+                Point[] polyline = new Point[] {
+                    new Point( 0, img.Height ),
+                    new Point( 450, 310 ),
+                    new Point( 490, 310 ),
+                    new Point( img.Width, img.Height )
+                };
+
+                VectorOfPoint vp = new VectorOfPoint(polyline);
+                VectorOfVectorOfPoint vvp = new VectorOfVectorOfPoint(vp);
+                CvInvoke.FillPoly(mask, vvp, white, LineType.FourConnected);
+                CvInvoke.BitwiseAnd(edges, mask, maskEdges);
+                LineSegment2D[] lines;
+                lines = CvInvoke.HoughLinesP(maskEdges, 3, Math.PI / 180, 15, 150, 60);
+                DrawLines(ref img, lines);
+                CvInvoke.Imshow("Detection", img);
+                if (CvInvoke.WaitKey(1) == 1)
+                    break;
+            }
+            #endregion
+
+            #region Image
+            //CvInvoke.Imshow("Road", img);
+            //CvInvoke.WaitKey();
+            //CvInvoke.DestroyAllWindows();
+            #endregion
+        }
+    }
+}

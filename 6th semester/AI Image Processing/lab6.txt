@@ -1,0 +1,214 @@
+using Tensorflow;
+using Tensorflow.Keras;
+using Tensorflow.Keras.Engine;
+using static Tensorflow.Binding;
+using static Tensorflow.KerasApi;
+using System;
+using System.Collections.Generic;
+
+namespace Lab
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            tf.Context.Config.GpuOptions.AllowGrowth = true;
+            tf.Context.Config.GpuOptions.ForceGpuCompatible = true;
+            float learning_rate = 0.001f;
+            int batch_size = 32;
+            int epochs = 50;
+            var class_names = new string[] { "airplane", "automobile",  "bird",
+                "cat", "deer", "dog", "frog", "horse", "ship", "truck"};
+            
+            var ((train_images, train_labels), (test_images, test_labels)) = keras.datasets.cifar10.load_data();
+            
+            test_images = null;
+            test_labels = null;
+            var validation_images = train_images[":5000"]; 
+            var validation_labels = train_labels[":5000"];
+            
+            train_images = train_images["5000:"];//[-5000]; //["1:5000"]; //["45000:"];
+            train_labels = train_labels["5000:"];
+            
+            var train_ds = tf.data.Dataset.from_tensor_slices(train_images, train_labels);
+            var test_ds = tf.data.Dataset.from_tensor_slices(test_images, test_labels);
+            var validation_ds = tf.data.Dataset.from_tensor_slices(validation_images, validation_labels);
+            var s = train_ds.cardinality().numpy();
+            train_ds = train_ds
+                .map(ProcessImages)
+                .shuffle(s)
+                .batch(32);//its imossible to ON drop_remainder
+            
+            test_ds = test_ds
+                .map(ProcessImages)
+                .shuffle(test_ds.cardinality().numpy())
+                .batch(batch_size);
+            
+            validation_ds = validation_ds
+                .map(ProcessImages)
+                .shuffle(validation_ds.cardinality().numpy())
+                .batch(32);
+            
+            var layers = new List<ILayer>();
+            layers.Add(keras.layers.Conv2D(filters: 96, kernel_size: (11, 11), strides: (4, 4),
+                activation: "relu", dilation_rate: (227, 227, 3)));
+            layers.Add(keras.layers.BatchNormalization());
+            layers.Add(keras.layers.MaxPooling2D(pool_size: (3, 3), strides: (2, 2)));
+            layers.Add(keras.layers.Conv2D(filters: 256, kernel_size: (5, 5),
+                strides: (1, 1), activation: "relu", padding: "same"));
+            layers.Add(keras.layers.BatchNormalization());
+            layers.Add(keras.layers.MaxPooling2D(pool_size: (3, 3), strides: (2, 2)));
+            layers.Add(keras.layers.Conv2D(filters: 384, kernel_size: (3, 3),
+                strides: (1, 1), activation: "relu", padding: "same"));
+            layers.Add(keras.layers.BatchNormalization());
+            layers.Add(keras.layers.Conv2D(filters: 384, kernel_size: (3, 3),
+                strides: (1, 1), activation: "relu", padding: "same"));
+            layers.Add(keras.layers.BatchNormalization());
+            layers.Add(keras.layers.Conv2D(filters: 256, kernel_size: (3, 3),
+                strides: (1, 1), activation: "relu", padding: "same"));
+            layers.Add(keras.layers.BatchNormalization());
+            layers.Add(keras.layers.MaxPooling2D(pool_size: (3, 3), strides: (2, 2)));
+            layers.Add(keras.layers.Flatten());
+            layers.Add(keras.layers.Dense(4096, activation: "relu"));
+            layers.Add(keras.layers.Dropout(0.5f));
+            layers.Add(keras.layers.Dense(4096, activation: "relu"));
+            layers.Add(keras.layers.Dropout(0.5f));
+            layers.Add(keras.layers.Dense(10, activation: "softmax"));
+            Model model = keras.Sequential(layers);
+            model.compile(
+                loss: keras.losses.SparseCategoricalCrossentropy(from_logits:true),
+                optimizer: keras.optimizers.SGD(learning_rate),
+                metrics: new[] { "accuracy" });
+            model.summary();
+            
+            Console.WriteLine("TRAIN");
+            var tensorboard_analog = 
+              model.fit(train_ds,
+              epochs: 2,
+              validation_data: validation_ds,
+              validation_split : 1);
+            foreach (var log in tensorboard_analog.history)
+                Console.WriteLine(log.Key);
+            
+            Console.WriteLine("TEST");
+            var tensorboard_analog2 = model.evaluate(test_ds);
+            foreach (var log in tensorboard_analog.history)
+                Console.WriteLine(log.Key);
+
+
+
+
+            ////var layers = new LayersApi();
+            ////// input layer
+            ////var inputs = keras.Input(shape: (32, 32, 3), name: "img");
+            ////// convolutional layer
+            ////var x = layers.Conv2D(32, 3, activation: "relu").Apply(inputs);
+            ////x = layers.Conv2D(64, 3, activation: "relu").Apply(x);
+            ////var block_1_output = layers.MaxPooling2D(3).Apply(x);
+            ////x = layers.Conv2D(64, 3, activation: "relu", padding: "same").Apply(block_1_output);
+            ////x = layers.Conv2D(64, 3, activation: "relu", padding: "same").Apply(x);
+            ////var block_2_output = layers.Add().Apply(new Tensors(x, block_1_output));
+            ////x = layers.Conv2D(64, 3, activation: "relu", padding: "same").Apply(block_2_output);
+            ////x = layers.Conv2D(64, 3, activation: "relu", padding: "same").Apply(x);
+            ////var block_3_output = layers.Add().Apply(new Tensors(x, block_2_output));
+            ////x = layers.Conv2D(64, 3, activation: "relu").Apply(block_3_output);
+            ////x = layers.GlobalAveragePooling2D().Apply(x);
+            ////x = layers.Dense(256, activation: "relu").Apply(x);
+            ////x = layers.Dropout(0.5f).Apply(x);
+            ////// output layer
+            ////var outputs = layers.Dense(10).Apply(x);
+            ////// build keras model
+            ////var model = keras.Model(inputs, outputs, name: "toy_resnet");
+            //
+            //Model model = keras.Sequential(new List<ILayer>()
+            //{
+            //    keras.layers.InputLayer((227, 227, 3)),
+            //    keras.layers.Conv2D(96, (11, 11), (4, 4), activation:"relu", padding:"valid"),
+            //    keras.layers.BatchNormalization(),
+            //    keras.layers.MaxPooling2D((3, 3), strides:(2, 2)),
+            //    
+            //    keras.layers.Conv2D(256, (5, 5), (1, 1), "same", activation: "relu"),
+            //    keras.layers.BatchNormalization(),
+            //    keras.layers.MaxPooling2D((3, 3), (2, 2)),
+            //    
+            //    keras.layers.Conv2D(384, (3, 3), (1, 1), "same", activation: "relu"),
+            //    keras.layers.BatchNormalization(),
+            //    
+            //    keras.layers.Conv2D(384, (3, 3), (1, 1), "same", activation: "relu"),
+            //    keras.layers.BatchNormalization(),
+            //    
+            //    keras.layers.Conv2D(256, (3, 3), (1, 1), "same", activation: "relu"),
+            //    keras.layers.BatchNormalization(),
+            //    keras.layers.MaxPooling2D((3, 3), (2, 2)),
+            //    
+            //    keras.layers.Flatten(),
+            //    keras.layers.Dense(4096, activation: "relu"),
+            //    keras.layers.Dropout(0.5f),
+            //    
+            //    keras.layers.Dense(4096, activation: "relu"),
+            //    keras.layers.Dropout(0.5f),
+            //    
+            //    keras.layers.Dense(1000, activation: "linear"),
+            //    keras.layers.Softmax(1)
+            //   //keras.layers.Conv2D(filters: 96, kernel_size: (11, 11), strides: (4, 4),
+            //   //  activation: "relu", dilation_rate: (227, 227, 3)),
+            //   //keras.layers.BatchNormalization(),
+            //   //keras.layers.MaxPooling2D(pool_size: (3, 3), strides: (2, 2)),
+            //   //keras.layers.Conv2D(filters: 256, kernel_size: (5, 5),
+            //   //    strides: (1, 1), activation: "relu", padding: "same"),
+            //   //keras.layers.BatchNormalization(),
+            //   //keras.layers.MaxPooling2D(pool_size: (3, 3), strides: (2, 2)),
+            //   //keras.layers.Conv2D(filters: 384, kernel_size: (3, 3),
+            //   //    strides: (1, 1), activation: "relu", padding: "same"),
+            //   //keras.layers.BatchNormalization(),
+            //   //keras.layers.Conv2D(filters: 384, kernel_size: (3, 3),
+            //   //    strides: (1, 1), activation: "relu", padding: "same"),
+            //   //keras.layers.BatchNormalization(),
+            //   //keras.layers.Conv2D(filters: 256, kernel_size: (3, 3),
+            //   //    strides: (1, 1), activation: "relu", padding: "same"),
+            //   //keras.layers.BatchNormalization(),
+            //   //keras.layers.MaxPooling2D(pool_size: (3, 3), strides: (2, 2)),
+            //   //keras.layers.Flatten(),
+            //   //keras.layers.Dense(4096, activation: "relu"),
+            //   //keras.layers.Dropout(0.5f),
+            //   //keras.layers.Dense(4096, activation: "relu"),
+            //   //keras.layers.Dropout(0.5f),
+            //   //keras.layers.Dense(10, activation: "softmax")
+            //});
+            //
+            //model.summary();
+            //// compile keras model in tensorflow static graph
+            //model.compile(optimizer: keras.optimizers.SGD(0.001f),
+            //    loss: keras.losses.CategoricalCrossentropy(from_logits: true),
+            //    metrics: new[] { "accuracy" });
+            //// prepare dataset
+            //var ((x_train, y_train), (x_test, y_test)) = keras.datasets.cifar10.load_data();
+            ////x_train = x_train / 255.0f;
+            //x_train = x_train[new Slice(0, 5000)];
+            //y_train = y_train[new Slice(0, 5000)];
+            //var x_train_ds = tf.data.Dataset.from_tensor_slices(x_train, y_train);
+            //x_train_ds = x_train_ds.map(ProcessImages);
+            //var images = x_train_ds.Select(k => k.Item1.numpy()).Distinct().ToArray();
+            //y_train = np_utils.to_categorical(y_train, 10);
+            //// training
+            //model.fit(images, y_train,//images
+            //          batch_size: 32,
+            //          epochs: 10,
+            //          validation_split: 0.2f);
+            //model.fit(x_train_ds,
+            //          batch_size: 32,
+            //          epochs: 10,
+            //          validation_split: 0.2f);
+        }
+
+        private static Tensors ProcessImages(Tensors arg)
+        {
+            //arg = tf.image.per_image_standardization(arg); // c# normalize it by default
+            arg = tf.image.resize(arg, (227, 227));
+            // if im right - size should be 256x256,
+            // cuz 227 its size needed only for first layer
+            //https://learnopencv.com/understanding-alexnet/
+            return arg;
+        }
+    }
+}
