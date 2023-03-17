@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Hapii</string>
+    <string name="your_text_here">Ваш текст буде тут:</string>
+    <string name="enter_text_here">Введіть тут текст!</string>
+    <string name="empty_input">Пустий Ввід</string>
+    <string name="empty_db">База Даних Пуста</string>
+    <string name="db_input">Ввід додано до Бази Даних</string>
+    <string name="empty"></string>
+    <string name="open_saved_inputs">Відкрити Збережений Ввід</string>
+    <string name="saves">Збережене:</string>
+    <string name="ok">Ок</string>
+    <string name="cancel">Відміна</string>
+</resources>

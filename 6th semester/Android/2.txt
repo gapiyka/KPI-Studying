@@ -1,0 +1,322 @@
+____________________
+[activity_main.xml]:
+
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/selectFragment"
+        android:name="com.example.hapii.SelectFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:layout="@layout/fragment_select" />
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/resultFragment"
+        android:name="com.example.hapii.ResultFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:layout="@layout/fragment_result" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+____________________
+[fragment_select.xml]:
+
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/selectFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SelectFragment">
+
+    <Button
+        android:id="@+id/btnOk"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="130sp"
+        android:text="Ok"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btnCancel"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/radioGroup"
+        app:layout_constraintVertical_bias="0.9" />
+
+    <Button
+        android:id="@+id/btnCancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cancel"
+        app:layout_constraintBaseline_toBaselineOf="@+id/btnOk"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/btnOk" />
+
+    <EditText
+        android:id="@+id/etInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:fontFamily="sans-serif"
+        android:text="@string/enter_text_here"
+        android:textSize="20sp"
+        android:maxLines="1"
+        android:inputType="textShortMessage"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/radioGroup" />
+
+    <RadioGroup
+        android:id="@+id/radioGroup"
+        android:layout_width="match_parent"
+        android:layout_height="50sp"
+        android:background="#333333"
+        android:clickable="true"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <RadioButton
+            android:id="@+id/radio_sans"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:checked="true" />
+
+        <RadioButton
+            android:id="@+id/radio_mono"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <RadioButton
+            android:id="@+id/radio_serif"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+    </RadioGroup>
+
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="50sp"
+
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/textViewSans"
+            android:layout_width="match_parent"
+            android:layout_height="20sp"
+            android:layout_gravity="center"
+            android:layout_marginLeft="30sp"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif"
+            android:text="Sans"
+            android:textColor="#ffffff" />
+
+        <TextView
+            android:id="@+id/textViewMono"
+            android:layout_width="match_parent"
+            android:layout_height="20sp"
+            android:layout_gravity="center"
+            android:layout_marginLeft="30sp"
+            android:layout_weight="1"
+            android:fontFamily="monospace"
+            android:text="Mono"
+            android:textColor="#ffffff" />
+
+        <TextView
+            android:id="@+id/textViewSerif"
+            android:layout_width="match_parent"
+            android:layout_height="20sp"
+            android:layout_gravity="center"
+            android:layout_marginLeft="30sp"
+            android:layout_weight="1"
+            android:fontFamily="serif"
+            android:text="Serif"
+            android:textColor="#ffffff" />
+    </LinearLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+____________________
+[fragment_result.xml]:
+
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/resultFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="60dp"
+    tools:context=".ResultFragment">
+
+    <TextView
+        android:id="@+id/tTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:text="@string/your_text_here"
+        android:textSize="33sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tOutput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:text="@string/your_text_here"
+        android:textAlignment="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tTitle" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+____________________
+[MainActivity.kt]:
+
+package com.example.hapii
+
+import android.graphics.Typeface
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity(), SelectFragment.OnSelectedListener {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+    }
+
+    override fun onSelected(text: String, font: Typeface) {
+        val fragment = supportFragmentManager
+            .findFragmentById(R.id.resultFragment) as ResultFragment
+        fragment.setTextResult(text, font)
+    }
+}
+
+
+
+____________________
+[SelectFragment.kt]:
+
+package com.example.hapii
+
+import android.content.Context
+import android.graphics.Typeface
+import android.os.Bundle
+import android.text.TextUtils
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.*
+import androidx.fragment.app.Fragment
+import com.example.hapii.R
+
+class SelectFragment : Fragment() {
+
+    interface OnSelectedListener {
+        fun onSelected(text: String, font: Typeface)
+    }
+
+    private lateinit var onSelectedListener: OnSelectedListener
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        onSelectedListener = context as OnSelectedListener
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val view: View = inflater.inflate(R.layout.fragment_select, container, false)
+        val activity = activity as Context
+
+        val textInput = view.findViewById<TextView>(R.id.etInput)
+        val buttonOk = view.findViewById<Button>(R.id.btnOk)
+        val buttonCancel = view.findViewById<Button>(R.id.btnCancel)
+        val radioGroup = view.findViewById<RadioGroup>(R.id.radioGroup)
+        val fontsFaces = listOf(Typeface.SANS_SERIF, Typeface.MONOSPACE, Typeface.SERIF)
+        val empty = getString(R.string.empty)
+
+        buttonOk.setOnClickListener {
+            val radioButtonID: Int = radioGroup.checkedRadioButtonId
+            val radioButton: View = radioGroup.findViewById(radioButtonID)
+            val idx: Int = radioGroup.indexOfChild(radioButton)
+            val text = textInput.text.toString()
+
+            if (TextUtils.isEmpty(text))
+                Toast.makeText(activity, getString(R.string.empty_input),
+                    Toast.LENGTH_SHORT,).show()
+            else
+                onSelectedListener.onSelected(text, fontsFaces[idx])
+        }
+
+        buttonCancel.setOnClickListener {
+            textInput.text = empty
+            onSelectedListener.onSelected(empty, Typeface.DEFAULT)
+        }
+
+        return view
+    }
+}
+
+
+
+____________________
+[ResultFragment.kt]:
+
+package com.example.hapii
+
+import android.graphics.Typeface
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import androidx.fragment.app.Fragment
+import com.example.hapii.R
+
+class ResultFragment : Fragment() {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.fragment_result, container, false)
+    }
+
+    fun setTextResult(text: String, font: Typeface) {
+        val textOutput = requireView().findViewById<TextView>(R.id.tOutput)
+        textOutput.text = text
+        textOutput.typeface = font
+    }
+
+}

@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Hapii</string>
+    <string name="your_text_here">Your Text Here:</string>
+    <string name="enter_text_here">Enter Text Here!</string>
+    <string name="empty_input">Empty Input</string>
+    <string name="empty_db">Empty DataBase</string>
+    <string name="db_input">Input is written to a DataBase</string>
+    <string name="empty"></string>
+    <string name="open_saved_inputs">Open Saved Inputs</string>
+    <string name="saves">Saves:</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancel</string>
+</resources>
