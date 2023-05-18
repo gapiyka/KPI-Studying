@@ -1,0 +1,16 @@
+{
+    "configurations": [
+        {
+            "name": "(Windows) Launch",
+            "type": "shell",
+            "request": "launch",
+            "program": "C:\\Program Files\\Microsoft MPI\\Bin\\mpiexec.exe -n 8 Lab.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "console": "externalTerminal"
+        }
+    ],
+    "version": "2.0.0"
+}
