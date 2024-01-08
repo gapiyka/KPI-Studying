@@ -1,0 +1,41 @@
+<div>
+  <p *ngIf="condition">
+    Привіт світ!
+  </p>
+  <p *ngIf="!condition">
+    Бувай світ!
+  </p>
+</div>
+<div>
+  <p *ngIf="condition;else unset">
+    Hello Angular!
+  </p>
+  <ng-template #unset>
+    <p>Bye Angular! </p>
+  </ng-template>
+</div>
+
+<div *ngIf="condition; then thenBlock else elseBlock"></div>
+<ng-template #thenBlock>Then template</ng-template>
+<ng-template #elseBlock>Else template</ng-template>
+<br />
+<button (click)="toggle()">Toggle</button>
+
+<ul>
+  <li *ngFor="let item of items">{{item}}</li>
+</ul>
+
+<div [ngSwitch]="count">
+  <ng-template ngSwitchCase="1">{{count * 10}}</ng-template>
+  <ng-template ngSwitchCase="2">{{count * 100}}</ng-template>
+  <ng-template ngSwitchDefault>{{count * 1000}}</ng-template>
+</div>
+
+<div>
+  <p *while="condition">
+    Перший параграф
+  </p>
+  <p *while="!condition">
+    Другий параграф
+  </p>
+</div>
