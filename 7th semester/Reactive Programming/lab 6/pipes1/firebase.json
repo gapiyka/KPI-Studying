@@ -1,0 +1,21 @@
+{
+  "hosting": [
+    {
+      "public": "dist/pipes1",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ]
+    },
+    {
+      "public": "dist/pipes1",
+      "target": "hapiiip05laba6-1",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ]
+    }
+  ]
+}

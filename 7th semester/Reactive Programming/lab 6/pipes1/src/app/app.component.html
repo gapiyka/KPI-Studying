@@ -1,0 +1,39 @@
+<div>Без форматування: {{myDate}}</div>
+<div>З форматуванням: {{myDate | date}}</div>
+<div>{{welcome | uppercase}}</div>
+<div>{{welcome | lowercase}}</div>
+<div>{{percentage | percent}}</div>
+<div>{{percentage | currency}}</div>
+<hr>
+<div>Params:</div>
+<div>{{welcome | slice:4}}</div>
+<div>{{welcome | slice:6:13}}</div>
+<hr>
+<div>Date:</div>
+<div>Current Day {{myNewDate | date:"dd/MM/yyyy"}}</div>
+<hr>
+<div>Numbers:</div>
+<div>{{pi | number:'2.1-2'}}</div>
+<div>{{pi | number:'3.5-5'}}</div>
+<hr>
+<div>Currency:</div>
+<div>{{money | currency:'UAH':'code'}}</div>
+<div>{{money | currency:'UAH':'symbol-narrow'}}</div>
+<div>{{money | currency:'USD':'symbol':'1.1-1'}}</div>
+<div>{{money | currency:'USD':'symbol-narrow':'1.1-1'}}</div>
+<div>{{money | currency:'RUB':'Дрібязок '}}</div>
+<hr>
+<div>Chain:</div>
+<div>{{message | slice:6:11 | uppercase}}</div>
+<hr>
+<div>Custom pipe:</div>
+<div>Число до форматування: {{x}}
+  <br>Число після форматування: {{x |
+  format}}
+</div>
+<div>{{users | join}}</div>
+<div>{{users | join:1}}</div>
+<div>{{users | join:1:3}}</div>
+<hr>
+<div>Extra task:</div>
+<div>Square root of {{xSqrt}} = {{xSqrt | sqrt}}</div>

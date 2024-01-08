@@ -1,0 +1,28 @@
+<div [ngClass]="{verdanaFont:isVerdana}">
+  <h1>Hello Angular</h1>
+  <p [ngClass]="{segoePrintFont:isSegoe}">
+    Angular представляє модульну архітектуру додатку
+  </p>
+</div>
+
+<div [ngClass]="currentClasses">
+  <h1>Hello Angular</h1>
+  <p>
+    Angular some text
+  </p>
+</div>
+
+<div [ngStyle]="{'font-size':'13px', 'font-family':'Verdana', 'color':'green'}">
+  <h1>Вивчаємо директиви</h1>
+  <p [ngStyle]="{'font-size':'16px', 'font-family':'Segoe Print'}">
+    Using attribute directive [ngStyle]
+  </p>
+</div>
+
+<div [ngClass]="{invisible: visibility}">
+  <h1> Вивчаємо директиви </h1>
+  <p>
+    Використання динамічної зміни стилів
+  </p>
+</div>
+<button (click)="toggle()">Toggle</button>

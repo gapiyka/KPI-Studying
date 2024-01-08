@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "hapiiip05laba4"
+  },
+  "targets": {
+    "hapiiip05laba4": {
+      "hosting": {
+        "hapiiip05laba8": [
+          "hapiiip05laba8"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}
